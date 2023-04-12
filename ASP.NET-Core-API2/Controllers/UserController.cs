@@ -1,5 +1,6 @@
 ﻿using ASP.NET_Core_API2.Data;
 using ASP.NET_Core_API2.Models;
+using ASP.NET_Core_API2.Models.Dtos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -83,6 +84,36 @@ namespace ASP.NET_Core_API2.Controllers
             }
 
             return BadRequest("Failed to Update User");
+        }
+
+        // ---------- CREATE ----------
+        [HttpPost("AddUser")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult AddUser(UserToAddDto user)
+        {
+            string sql = @"INSERT INTO TutorialAppSchema.Users(
+                [FirstName],
+                [LastName],
+                [Email],
+                [Gender],
+                [Active]
+            ) VALUES (" +
+                    "'" + user.FirstName +
+                    "', '" + user.LastName +
+                    "', '" + user.Email +
+                    "', '" + user.Gender +
+                    "', '" + user.Active +
+                "')";
+
+            Console.WriteLine(sql);
+
+            if (_dapper.ExecuteSql(sql))
+            {
+                return Ok();
+            }
+
+            return BadRequest("Failed to Add User");
         }
 
     }
