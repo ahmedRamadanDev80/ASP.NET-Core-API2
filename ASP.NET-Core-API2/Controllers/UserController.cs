@@ -1,4 +1,6 @@
 ﻿using ASP.NET_Core_API2.Data;
+using ASP.NET_Core_API2.Models;
+using Azure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,16 +16,51 @@ namespace ASP.NET_Core_API2.Controllers
             _dapper = new DataContextDapper(config);
         }
 
-        [HttpGet("TestConnection")]
-        public DateTime TestConnection()
+        // ---------- GET ALL ----------
+        [HttpGet("GetUsers")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public ActionResult<IEnumerable<User>> GetUsers()
         {
-            return _dapper.LoadDataSingle<DateTime>("SELECT GETDATE()");
+            string sql = @"
+            SELECT [UserId],
+                [FirstName],
+                [LastName],
+                [Email],
+                [Gender],
+                [Active] 
+            FROM TutorialAppSchema.Users";
+            IEnumerable<User> users = _dapper.LoadData<User>(sql);
+            return Ok(users);
         }
 
-        [HttpGet("GetUsers/{testValue}")]
-        public string[] GetUsers(string testValue)
+        // ---------- GET BY ID ----------
+        [HttpGet("GetSingleUser/{userId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<User> GetSingleUser(int userId)
         {
-            return new string[] { "user1", "user2", testValue };
+            //if (userId == 0) { return BadRequest("ID Does Not Exist"); }
+
+                string sql = @"
+            SELECT [UserId],
+                [FirstName],
+                [LastName],
+                [Email],
+                [Gender],
+                [Active] 
+            FROM TutorialAppSchema.Users
+                WHERE UserId = " + userId.ToString();
+
+            try
+            {
+                User user = _dapper.LoadDataSingle<User>(sql);
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
+
     }
 }
