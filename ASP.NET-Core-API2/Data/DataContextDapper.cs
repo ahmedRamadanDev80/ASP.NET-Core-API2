@@ -18,7 +18,7 @@ namespace ASP.NET_Core_API2.Data
             return dbConnection.Query<T>(sql);
         }
 
-        public T LoadDatSingle<T>(string sql)
+        public T LoadDataSingle<T>(string sql)
         {
             IDbConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
             return dbConnection.QuerySingle<T>(sql);
