@@ -116,5 +116,25 @@ namespace ASP.NET_Core_API2.Controllers
             return BadRequest("Failed to Add User");
         }
 
+        // ---------- DELETE ----------
+        [HttpDelete("DeleteUser/{userId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult DeleteUser(int userId)
+        {
+            string sql = @"
+            DELETE FROM TutorialAppSchema.Users 
+                WHERE UserId = " + userId.ToString();
+
+            Console.WriteLine(sql);
+
+            if (_dapper.ExecuteSql(sql))
+            {
+                return Ok();
+            }
+
+            return BadRequest("Failed to Delete User");
+        }
+
     }
 }
