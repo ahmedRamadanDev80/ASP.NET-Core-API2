@@ -1,6 +1,5 @@
 ﻿using ASP.NET_Core_API2.Data;
 using ASP.NET_Core_API2.Models;
-using Azure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -39,9 +38,9 @@ namespace ASP.NET_Core_API2.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<User> GetSingleUser(int userId)
         {
-            //if (userId == 0) { return BadRequest("ID Does Not Exist"); }
+            if (userId == 0) { return BadRequest("ID Does Not Exist"); }
 
-                string sql = @"
+            string sql = @"
             SELECT [UserId],
                 [FirstName],
                 [LastName],
@@ -60,6 +59,30 @@ namespace ASP.NET_Core_API2.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        // ---------- UPDATE ----------
+        [HttpPut("EditUser")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult EditUser(User user)
+        {
+            string sql = @"
+        UPDATE TutorialAppSchema.Users
+            SET [FirstName] = '" + user.FirstName +
+                "', [LastName] = '" + user.LastName +
+                "', [Email] = '" + user.Email +
+                "', [Gender] = '" + user.Gender +
+                "', [Active] = '" + user.Active +
+            "' WHERE UserId = " + user.UserId;
+
+            Console.WriteLine(sql);
+            if (_dapper.ExecuteSql(sql))
+            {
+                return Ok();
+            }
+
+            return BadRequest("Failed to Update User");
         }
 
     }
