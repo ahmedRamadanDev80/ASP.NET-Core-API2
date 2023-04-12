@@ -1,4 +1,4 @@
-namespace ASP.NET_Core_API2
+namespace ASP.NET_Core_API2.Models
 {
     public class WeatherForecast
     {

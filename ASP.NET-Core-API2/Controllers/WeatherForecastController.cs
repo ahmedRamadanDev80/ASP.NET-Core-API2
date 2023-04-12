@@ -1,3 +1,4 @@
+using ASP.NET_Core_API2.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ASP.NET_Core_API2.Controllers
