@@ -17,7 +17,7 @@ namespace ASP.NET_Core_API2.Controllers
         }
 
         // ---------- GET ALL ----------
-        [HttpGet("GetUsers")]
+        [HttpGet("GetAll")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<IEnumerable<User>> GetUsers()
         {
@@ -34,7 +34,7 @@ namespace ASP.NET_Core_API2.Controllers
         }
 
         // ---------- GET BY ID ----------
-        [HttpGet("GetSingleUser/{userId}")]
+        [HttpGet("Get/{userId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<User> GetSingleUser(int userId)
@@ -63,7 +63,7 @@ namespace ASP.NET_Core_API2.Controllers
         }
 
         // ---------- UPDATE ----------
-        [HttpPut("EditUser")]
+        [HttpPut("Edit")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult EditUser(User user)
@@ -87,7 +87,7 @@ namespace ASP.NET_Core_API2.Controllers
         }
 
         // ---------- CREATE ----------
-        [HttpPost("AddUser")]
+        [HttpPost("Add")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult AddUser(UserToAddDto user)
@@ -117,7 +117,7 @@ namespace ASP.NET_Core_API2.Controllers
         }
 
         // ---------- DELETE ----------
-        [HttpDelete("DeleteUser/{userId}")]
+        [HttpDelete("Delete/{userId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult DeleteUser(int userId)
