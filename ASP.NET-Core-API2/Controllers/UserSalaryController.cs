@@ -19,6 +19,7 @@ namespace ASP.NET_Core_API2.Controllers
         // ---------- GET ALL ----------
         [HttpGet("GetAll")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<IEnumerable<UserSalary>> GetUserSalarys()
         {
             string sql = @"
@@ -27,8 +28,15 @@ namespace ASP.NET_Core_API2.Controllers
                ,[Salary]
             FROM 
                 TutorialAppSchema.UserSalary";
-            IEnumerable<UserSalary> users = _dapper.LoadData<UserSalary>(sql);
-            return Ok(users);
+            try
+            {
+                IEnumerable<UserSalary> users = _dapper.LoadData<UserSalary>(sql);
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         // ---------- GET BY ID ----------
@@ -70,11 +78,17 @@ namespace ASP.NET_Core_API2.Controllers
             "' WHERE UserId = " + userSalary.UserId.ToString();
 
             Console.WriteLine(sql);
-            if (_dapper.ExecuteSql(sql))
+            try
             {
-                return Ok();
+                if (_dapper.ExecuteSql(sql))
+                {
+                    return Ok();
+                }
             }
-
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
             return BadRequest("Failed to Update UserSalary");
         }
 
@@ -95,12 +109,17 @@ namespace ASP.NET_Core_API2.Controllers
                 "')";
 
             Console.WriteLine(sql);
-
-            if (_dapper.ExecuteSql(sql))
+            try
             {
-                return Ok();
+                if (_dapper.ExecuteSql(sql))
+                {
+                    return Ok();
+                }
             }
-
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
             return BadRequest("Failed to Add UserSalary");
         }
 
@@ -115,12 +134,17 @@ namespace ASP.NET_Core_API2.Controllers
                 WHERE UserId = " + userId.ToString();
 
             Console.WriteLine(sql);
-
-            if (_dapper.ExecuteSql(sql))
+            try
             {
-                return Ok();
+                if (_dapper.ExecuteSql(sql))
+                {
+                    return Ok();
+                }
             }
-
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
             return BadRequest("Failed to Delete UserSalary");
         }
 

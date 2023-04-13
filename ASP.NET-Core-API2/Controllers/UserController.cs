@@ -19,6 +19,7 @@ namespace ASP.NET_Core_API2.Controllers
         // ---------- GET ALL ----------
         [HttpGet("GetAll")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<IEnumerable<User>> GetUsers()
         {
             string sql = @"
@@ -29,8 +30,15 @@ namespace ASP.NET_Core_API2.Controllers
                 [Gender],
                 [Active] 
             FROM TutorialAppSchema.Users";
-            IEnumerable<User> users = _dapper.LoadData<User>(sql);
-            return Ok(users);
+            try
+            {
+                IEnumerable<User> users = _dapper.LoadData<User>(sql);
+                return Ok(users);
+            }
+            catch(Exception ex) 
+            { 
+                return BadRequest(ex.Message); 
+            }
         }
 
         // ---------- GET BY ID ----------
@@ -78,11 +86,17 @@ namespace ASP.NET_Core_API2.Controllers
             "' WHERE UserId = " + user.UserId;
 
             Console.WriteLine(sql);
-            if (_dapper.ExecuteSql(sql))
+            try
             {
-                return Ok();
+                if (_dapper.ExecuteSql(sql))
+                {
+                    return Ok();
+                }
             }
-
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
             return BadRequest("Failed to Update User");
         }
 
@@ -107,12 +121,17 @@ namespace ASP.NET_Core_API2.Controllers
                 "')";
 
             Console.WriteLine(sql);
-
-            if (_dapper.ExecuteSql(sql))
+            try
             {
-                return Ok();
+                if (_dapper.ExecuteSql(sql))
+                {
+                    return Ok();
+                }
             }
-
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
             return BadRequest("Failed to Add User");
         }
 
@@ -127,12 +146,17 @@ namespace ASP.NET_Core_API2.Controllers
                 WHERE UserId = " + userId.ToString();
 
             Console.WriteLine(sql);
-
-            if (_dapper.ExecuteSql(sql))
+            try
             {
-                return Ok();
+                if (_dapper.ExecuteSql(sql))
+                {
+                    return Ok();
+                }
             }
-
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
             return BadRequest("Failed to Delete User");
         }
 

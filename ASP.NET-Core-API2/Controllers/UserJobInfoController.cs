@@ -19,6 +19,7 @@ namespace ASP.NET_Core_API2.Controllers
         // ---------- GET ALL ----------
         [HttpGet("GetAll")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<IEnumerable<UserJobInfo>> GetUserJobInfo()
         {
             string sql = @"
@@ -28,8 +29,15 @@ namespace ASP.NET_Core_API2.Controllers
                ,[Department]
             FROM 
                 TutorialAppSchema.UserJobInfo";
-            IEnumerable<UserJobInfo> users = _dapper.LoadData<UserJobInfo>(sql);
-            return Ok(users);
+            try
+            {
+                IEnumerable<UserJobInfo> users = _dapper.LoadData<UserJobInfo>(sql);
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         // ---------- GET BY ID ----------
@@ -73,11 +81,17 @@ namespace ASP.NET_Core_API2.Controllers
             "' WHERE UserId = " + userJobInfo.UserId.ToString();
 
             Console.WriteLine(sql);
-            if (_dapper.ExecuteSql(sql))
+            try
             {
-                return Ok();
+                if (_dapper.ExecuteSql(sql))
+                {
+                    return Ok();
+                }
             }
-
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
             return BadRequest("Failed to Update UserJobInfo");
         }
 
@@ -100,12 +114,17 @@ namespace ASP.NET_Core_API2.Controllers
                 "')";
 
             Console.WriteLine(sql);
-
-            if (_dapper.ExecuteSql(sql))
+            try
             {
-                return Ok();
+                if (_dapper.ExecuteSql(sql))
+                {
+                    return Ok();
+                }
             }
-
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
             return BadRequest("Failed to Add UserJobInfo");
         }
 
@@ -120,12 +139,17 @@ namespace ASP.NET_Core_API2.Controllers
                 WHERE UserId = " + userId.ToString();
 
             Console.WriteLine(sql);
-
-            if (_dapper.ExecuteSql(sql))
+            try
             {
-                return Ok();
+                if (_dapper.ExecuteSql(sql))
+                {
+                    return Ok();
+                }
             }
-
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
             return BadRequest("Failed to Delete UserJobInfo");
         }
 
