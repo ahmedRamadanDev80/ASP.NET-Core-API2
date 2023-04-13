@@ -1,0 +1,128 @@
+﻿using ASP.NET_Core_API2.Data;
+using ASP.NET_Core_API2.Models;
+using ASP.NET_Core_API2.Models.Dtos;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+namespace ASP.NET_Core_API2.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class UserSalaryController : ControllerBase
+    {
+        private readonly DataContextDapper _dapper;
+        public UserSalaryController(IConfiguration config)
+        {
+            _dapper = new DataContextDapper(config);
+        }
+
+        // ---------- GET ALL ----------
+        [HttpGet("GetAll")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public ActionResult<IEnumerable<UserSalary>> GetUsers()
+        {
+            string sql = @"
+            SELECT 
+                [UserId]
+               ,[Salary]
+            FROM 
+                TutorialAppSchema.UserSalary";
+            IEnumerable<UserSalary> users = _dapper.LoadData<UserSalary>(sql);
+            return Ok(users);
+        }
+
+        // ---------- GET BY ID ----------
+        [HttpGet("Get/{userId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public ActionResult<UserSalary> GetSingleUserSalary(int userId)
+        {
+            if (userId == 0) { return BadRequest("ID Does Not Exist"); }
+
+            string sql = @"
+            SELECT 
+                [UserId]
+               ,[Salary]
+            FROM  
+                TutorialAppSchema.UserSalary
+            WHERE UserId = " + userId.ToString();
+
+            try
+            {
+                UserSalary user = _dapper.LoadDataSingle<UserSalary>(sql);
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        // ---------- UPDATE ----------
+        [HttpPut("Edit")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult EditUser(UserSalary userSalary)
+        {
+            string sql = @"
+        UPDATE TutorialAppSchema.UserSalary
+            SET [Salary] = '" + userSalary.Salary +
+            "' WHERE UserId = " + userSalary.UserId.ToString();
+
+            Console.WriteLine(sql);
+            if (_dapper.ExecuteSql(sql))
+            {
+                return Ok();
+            }
+
+            return BadRequest("Failed to Update User");
+        }
+
+        // ---------- CREATE ----------
+        [HttpPost("Add")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult AddUserSalary(UserSalary userSalary)
+        {
+            // the id must be for an actual user because its a foreign key for the main users table.
+
+            string sql = @"INSERT INTO TutorialAppSchema.UserSalary(
+                [UserId],
+                [Salary]
+            ) VALUES (" +
+                    "'" + userSalary.UserId +
+                    "', '" + userSalary.Salary +
+                "')";
+
+            Console.WriteLine(sql);
+
+            if (_dapper.ExecuteSql(sql))
+            {
+                return Ok();
+            }
+
+            return BadRequest("Failed to Add User");
+        }
+
+        // ---------- DELETE ----------
+        [HttpDelete("Delete/{userId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult DeleteUser(int userId)
+        {
+            string sql = @"
+            DELETE FROM TutorialAppSchema.UserSalary 
+                WHERE UserId = " + userId.ToString();
+
+            Console.WriteLine(sql);
+
+            if (_dapper.ExecuteSql(sql))
+            {
+                return Ok();
+            }
+
+            return BadRequest("Failed to Delete UserSalary");
+        }
+
+    }
+}
