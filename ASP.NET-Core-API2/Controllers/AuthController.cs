@@ -67,14 +67,33 @@ namespace ASP.NET_Core_API2.Controllers
                     // calling dapper with the sql string and the parameters
                     try
                     {
+                        //creating user in auth table
                         if (_dapper.ExecuteSqlWithParameters(sqlAddAuth, sqlParameters))
                         {
-                            return Ok();
+                            string sqlAddUser = @"
+                            INSERT INTO TutorialAppSchema.Users(
+                                [FirstName],
+                                [LastName],
+                                [Email],
+                                [Gender],
+                                [Active]
+                            ) VALUES (" +
+                                "'" + userToRegister.FirstName +
+                                "', '" + userToRegister.LastName +
+                                "', '" + userToRegister.Email +
+                                "', '" + userToRegister.Gender +
+                                "', 1)";
+                            //create user in Users table
+                            if(_dapper.ExecuteSql(sqlAddUser))
+                            {
+                                return Ok();
+                            }
+                            return BadRequest("Failed to add user.");
                         }
                     }
                     catch(Exception ex) 
                     {
-                        return BadRequest("Failed to add user.");
+                        return BadRequest("Failed to register user.");
                     }
                 }
                 return BadRequest("User with this email already exists!");
