@@ -1,6 +1,7 @@
 ﻿using ASP.NET_Core_API2.Data;
 using ASP.NET_Core_API2.Models;
 using ASP.NET_Core_API2.Models.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -16,6 +17,7 @@ using System.Text;
 
 namespace ASP.NET_Core_API2.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
@@ -31,6 +33,7 @@ namespace ASP.NET_Core_API2.Controllers
         }
 
         // ---------- Register ----------
+        [AllowAnonymous]
         [HttpPost("Register")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -108,6 +111,7 @@ namespace ASP.NET_Core_API2.Controllers
         }
 
         // ---------- Login ----------
+        [AllowAnonymous]
         [HttpPost("Login")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -148,6 +152,18 @@ namespace ASP.NET_Core_API2.Controllers
             {
                 return BadRequest("email is invalid!");
             }
+        }
+        // ---------- Login ----------
+        [HttpGet("RefreshToken")]
+        public string RefreshToken()
+        {
+            string userIdSql = @"
+                SELECT UserId FROM TutorialAppSchema.Users WHERE UserId = '" +
+                User.FindFirst("userId")?.Value + "'";
+
+            int userId = _dapper.LoadDataSingle<int>(userIdSql);
+
+            return CreateToken(userId);
         }
 
         // ---------- Helper Methods ----------
