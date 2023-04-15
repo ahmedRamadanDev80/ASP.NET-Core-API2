@@ -1,11 +1,16 @@
 ﻿using ASP.NET_Core_API2.Data;
+using ASP.NET_Core_API2.Models;
 using ASP.NET_Core_API2.Models.Dtos;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using System.Data;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -17,6 +22,7 @@ namespace ASP.NET_Core_API2.Controllers
     {
         private readonly DataContextDapper _dapper;
         private readonly IConfiguration _config;
+
 
         public AuthController(IConfiguration config)
         {
@@ -128,8 +134,15 @@ namespace ASP.NET_Core_API2.Controllers
                         return StatusCode(401, "Incorrect password!");
                     }
                 }
+                // if user entered the correct email and pass give him a token that has his id in it 
+                string userIdSql = @"
+                SELECT UserId FROM TutorialAppSchema.Users WHERE Email = '" +
+                 userToLogin.Email + "'";
 
-                return Ok();
+                int userId = _dapper.LoadDataSingle<int>(userIdSql);
+
+                return Ok(new Dictionary<string, string> {
+                    {"token", CreateToken(userId)} });
             }
             catch(Exception ex) 
             {
@@ -137,6 +150,7 @@ namespace ASP.NET_Core_API2.Controllers
             }
         }
 
+        // ---------- Helper Methods ----------
         private byte[] GetPasswordHash(string password, byte[] passwordSalt)
         {
             string passwordSaltPlusString = _config.GetSection("AppSettings:PasswordKey").Value +
@@ -149,6 +163,24 @@ namespace ASP.NET_Core_API2.Controllers
                 iterationCount: 1000000,
                 numBytesRequested: 256 / 8
             );
+        }
+
+        private string CreateToken(int userId)
+        {           
+            string? tokenKeyString = _config.GetSection("AppSettings:TokenKey").Value;
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(tokenKeyString??"");
+            var descriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[]
+               {
+                    new Claim("userId", userId.ToString())
+               }),
+                Expires = DateTime.UtcNow.AddDays(7),
+                SigningCredentials = new(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = tokenHandler.CreateToken(descriptor);
+            return tokenHandler.WriteToken(token);
         }
 
     }
