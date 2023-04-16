@@ -121,6 +121,34 @@ namespace ASP.NET_Core_API2.Controllers
             }
         }
 
+
+        // ---------- SEARCH POSTS ----------
+        [HttpGet("Search/{searchParam}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public ActionResult<IEnumerable<Post>> PostsBySearch(string searchParam)
+        {
+            string sql = @"SELECT [PostId],
+                    [UserId],
+                    [PostTitle],
+                    [PostContent],
+                    [PostCreated],
+                    [PostUpdated] 
+                FROM TutorialAppSchema.Posts
+                    WHERE PostTitle LIKE '%" + searchParam + "%'" +
+                        " OR PostContent LIKE '%" + searchParam + "%'";
+            try
+            {
+                IEnumerable<Post> posts = _dapper.LoadData<Post>(sql);
+                return Ok(posts);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         // ---------- POST ----------
         [HttpPost("Add")]
         [ProducesResponseType(StatusCodes.Status200OK)]
