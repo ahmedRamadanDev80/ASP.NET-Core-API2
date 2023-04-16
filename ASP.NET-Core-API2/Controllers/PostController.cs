@@ -151,5 +151,57 @@ namespace ASP.NET_Core_API2.Controllers
             }
             return BadRequest("Failed to create new post!");
         }
+
+        // ---------- UPDATE ----------
+        [HttpPut("Edit")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public IActionResult EditPost(PostToEditDto postToEdit)
+        {
+            string sql = @"
+            UPDATE TutorialAppSchema.Posts 
+                SET PostContent = '" + postToEdit.PostContent +
+                "', PostTitle = '" + postToEdit.PostTitle +
+                @"', PostUpdated = GETDATE()
+                    WHERE PostId = " + postToEdit.PostId.ToString() +
+                    "AND UserId = " + this.User.FindFirst("userId")?.Value;
+            try
+            {
+                if (_dapper.ExecuteSql(sql))
+                {
+                    return Ok();
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return BadRequest("Failed to Edit post!");
+        }
+
+        // ---------- DELETE ----------
+        [HttpDelete("Delete/{postId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public IActionResult DeletePost(int postId)
+        {
+            string sql = @"DELETE FROM TutorialAppSchema.Posts 
+                WHERE PostId = " + postId.ToString() +
+                    "AND UserId = " + this.User.FindFirst("userId")?.Value;
+            try
+            {
+                if (_dapper.ExecuteSql(sql))
+                {
+                    return Ok();
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return BadRequest("Failed to Delete post!");
+        }
     }
 }
