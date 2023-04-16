@@ -1,10 +1,13 @@
 ﻿using ASP.NET_Core_API2.Data;
 using ASP.NET_Core_API2.Models;
+using ASP.NET_Core_API2.Models.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ASP.NET_Core_API2.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class PostController : ControllerBase
@@ -19,6 +22,7 @@ namespace ASP.NET_Core_API2.Controllers
         [HttpGet("GetAll")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public ActionResult<IEnumerable<Post>> GetPosts()
         {
             string sql = @"SELECT [PostId],
@@ -43,6 +47,7 @@ namespace ASP.NET_Core_API2.Controllers
         [HttpGet("Get/{postId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public ActionResult<Post> GetPost(int postId)
         {
             string sql = @"SELECT [PostId],
@@ -65,9 +70,10 @@ namespace ASP.NET_Core_API2.Controllers
         }
 
         // ---------- GET BY USER ----------
-        [HttpGet("Get/{userId}")]
+        [HttpGet("GetUserPosts/{userId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public ActionResult<IEnumerable<Post>> GetUserPosts(int userId)
         {
             string sql = @"SELECT [PostId],
@@ -93,6 +99,7 @@ namespace ASP.NET_Core_API2.Controllers
         [HttpGet("GetMyPosts")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public ActionResult<IEnumerable<Post>> GetMyPosts()
         {
             string sql = @"SELECT [PostId],
@@ -114,5 +121,35 @@ namespace ASP.NET_Core_API2.Controllers
             }
         }
 
+        // ---------- POST ----------
+        [HttpPost("Add")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public IActionResult AddPost(PostToAddDto postToAdd)
+        {
+            string sql = @"
+            INSERT INTO TutorialAppSchema.Posts(
+                [UserId],
+                [PostTitle],
+                [PostContent],
+                [PostCreated],
+                [PostUpdated]) VALUES (" + this.User.FindFirst("userId")?.Value
+                + ",'" + postToAdd.PostTitle
+                + "','" + postToAdd.PostContent
+                + "', GETDATE(), GETDATE() )";
+            try
+            {
+                if (_dapper.ExecuteSql(sql))
+                {
+                    return Ok();
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return BadRequest("Failed to create new post!");
+        }
     }
 }
