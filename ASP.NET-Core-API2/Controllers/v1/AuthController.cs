@@ -12,7 +12,7 @@ using System.Data;
 using System.Security.Cryptography;
 
 
-namespace ASP.NET_Core_API2.Controllers
+namespace ASP.NET_Core_API2.Controllers.v1
 {
     [Authorize]
     [Route("api/v{version:apiVersion}/[controller]")]
@@ -92,14 +92,14 @@ namespace ASP.NET_Core_API2.Controllers
                                 "', '" + userToRegister.Gender +
                                 "', 1)";
                             //create user in Users table
-                            if(_dapper.ExecuteSql(sqlAddUser))
+                            if (_dapper.ExecuteSql(sqlAddUser))
                             {
                                 return Ok();
                             }
                             return BadRequest("Failed to add user.");
                         }
                     }
-                    catch(Exception ex) 
+                    catch (Exception ex)
                     {
                         return BadRequest("Failed to register user.");
                     }
@@ -147,7 +147,7 @@ namespace ASP.NET_Core_API2.Controllers
                 return Ok(new Dictionary<string, string> {
                     {"token", _authHelper.CreateToken(userId)} });
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
                 return BadRequest("email is invalid!");
             }

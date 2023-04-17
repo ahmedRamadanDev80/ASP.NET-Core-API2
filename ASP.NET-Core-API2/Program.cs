@@ -43,7 +43,24 @@ builder.Services.AddSwaggerGen(options => {
     {
         Version = "v1.0",
         Title = "Users API",
-        Description = "in this version the end points talk to a Db using Dapper that carries and sql string Directly to the Db"
+        Description = "in this version the end points talk to a Db using Dapper that carries and sql string Directly to the Db.",
+        Contact = new OpenApiContact
+        {
+            Name = "Altair",
+            Url = new Uri("https://www.linkedin.com/in/ahmed-ramadan-altair/")
+        },
+    });
+    options.SwaggerDoc("v2", new OpenApiInfo
+    {
+        Version = "v2.0",
+        Title = "Users API",
+        Description = @"in this version the end points talk to a Db using Dapper that carries a
+                        stored procedure execution command which is more secure and dynamic approach.",
+        Contact = new OpenApiContact
+        {
+            Name = "Altair",
+            Url = new Uri("https://www.linkedin.com/in/ahmed-ramadan-altair/")
+        },
     });
 
 });
@@ -101,6 +118,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(options => {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "UserAPI_V1");
+        options.SwaggerEndpoint("/swagger/v2/swagger.json", "UserAPI_V2");
     });
     app.UseCors("DevCors");
 }

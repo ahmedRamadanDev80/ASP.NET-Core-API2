@@ -5,16 +5,16 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ASP.NET_Core_API2.Controllers
+namespace ASP.NET_Core_API2.Controllers.v1
 {
     [Authorize]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     [ApiVersion("1.0")]
-    public class UserController : ControllerBase
+    public class UserJobInfoController : ControllerBase
     {
         private readonly DataContextDapper _dapper;
-        public UserController(IConfiguration config)
+        public UserJobInfoController(IConfiguration config)
         {
             _dapper = new DataContextDapper(config);
         }
@@ -23,24 +23,23 @@ namespace ASP.NET_Core_API2.Controllers
         [HttpGet("GetAll")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<IEnumerable<User>> GetUsers()
+        public ActionResult<IEnumerable<UserJobInfo>> GetUserJobInfo()
         {
             string sql = @"
-            SELECT [UserId],
-                [FirstName],
-                [LastName],
-                [Email],
-                [Gender],
-                [Active] 
-            FROM TutorialAppSchema.Users";
+            SELECT 
+                [UserId]
+               ,[JobTitle]
+               ,[Department]
+            FROM 
+                TutorialAppSchema.UserJobInfo";
             try
             {
-                IEnumerable<User> users = _dapper.LoadData<User>(sql);
+                IEnumerable<UserJobInfo> users = _dapper.LoadData<UserJobInfo>(sql);
                 return Ok(users);
             }
-            catch(Exception ex) 
-            { 
-                return BadRequest(ex.Message); 
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
 
@@ -48,23 +47,22 @@ namespace ASP.NET_Core_API2.Controllers
         [HttpGet("Get/{userId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<User> GetSingleUser(int userId)
+        public ActionResult<UserSalary> GetSingleUserJobInfo(int userId)
         {
             if (userId == 0) { return BadRequest("ID Does Not Exist"); }
 
             string sql = @"
-            SELECT [UserId],
-                [FirstName],
-                [LastName],
-                [Email],
-                [Gender],
-                [Active] 
-            FROM TutorialAppSchema.Users
-                WHERE UserId = " + userId.ToString();
+            SELECT 
+                [UserId]
+               ,[JobTitle]
+               ,[Department]
+            FROM  
+                TutorialAppSchema.UserJobInfo
+            WHERE UserId = " + userId.ToString();
 
             try
             {
-                User user = _dapper.LoadDataSingle<User>(sql);
+                UserJobInfo user = _dapper.LoadDataSingle<UserJobInfo>(sql);
                 return Ok(user);
             }
             catch (Exception ex)
@@ -77,16 +75,13 @@ namespace ASP.NET_Core_API2.Controllers
         [HttpPut("Edit")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult EditUser(User user)
+        public IActionResult EditUserJobInfo(UserJobInfo userJobInfo)
         {
             string sql = @"
-        UPDATE TutorialAppSchema.Users
-            SET [FirstName] = '" + user.FirstName +
-                "', [LastName] = '" + user.LastName +
-                "', [Email] = '" + user.Email +
-                "', [Gender] = '" + user.Gender +
-                "', [Active] = '" + user.Active +
-            "' WHERE UserId = " + user.UserId;
+        UPDATE TutorialAppSchema.UserJobInfo
+            SET [JobTitle] = '" + userJobInfo.JobTitle +
+             "', [Department] = '" + userJobInfo.Department +
+            "' WHERE UserId = " + userJobInfo.UserId.ToString();
 
             Console.WriteLine(sql);
             try
@@ -100,27 +95,25 @@ namespace ASP.NET_Core_API2.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            return BadRequest("Failed to Update User");
+            return BadRequest("Failed to Update UserJobInfo");
         }
 
         // ---------- CREATE ----------
         [HttpPost("Add")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult AddUser(UserToAddDto user)
+        public IActionResult AddUserJobInfo(UserJobInfo userJobInfo)
         {
-            string sql = @"INSERT INTO TutorialAppSchema.Users(
-                [FirstName],
-                [LastName],
-                [Email],
-                [Gender],
-                [Active]
+            // the id must be for an actual user because its a foreign key for the main users table.
+
+            string sql = @"INSERT INTO TutorialAppSchema.UserJobInfo(
+                [UserId],
+                [JobTitle],
+                [Department]
             ) VALUES (" +
-                    "'" + user.FirstName +
-                    "', '" + user.LastName +
-                    "', '" + user.Email +
-                    "', '" + user.Gender +
-                    "', '" + user.Active +
+                    "'" + userJobInfo.UserId +
+                    "', '" + userJobInfo.JobTitle +
+                    "', '" + userJobInfo.Department +
                 "')";
 
             Console.WriteLine(sql);
@@ -135,17 +128,17 @@ namespace ASP.NET_Core_API2.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            return BadRequest("Failed to Add User");
+            return BadRequest("Failed to Add UserJobInfo");
         }
 
         // ---------- DELETE ----------
         [HttpDelete("Delete/{userId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult DeleteUser(int userId)
+        public IActionResult DeleteUserJobInfo(int userId)
         {
             string sql = @"
-            DELETE FROM TutorialAppSchema.Users 
+            DELETE FROM TutorialAppSchema.UserJobInfo 
                 WHERE UserId = " + userId.ToString();
 
             Console.WriteLine(sql);
@@ -160,7 +153,7 @@ namespace ASP.NET_Core_API2.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            return BadRequest("Failed to Delete User");
+            return BadRequest("Failed to Delete UserJobInfo");
         }
 
     }

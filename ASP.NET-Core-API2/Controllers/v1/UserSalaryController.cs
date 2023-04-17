@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ASP.NET_Core_API2.Controllers
+namespace ASP.NET_Core_API2.Controllers.v1
 {
     [Authorize]
     [Route("api/v{version:apiVersion}/[controller]")]

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ASP.NET_Core_API2.Controllers
+namespace ASP.NET_Core_API2.Controllers.v1
 {
     [Authorize]
     [Route("api/v{version:apiVersion}/[controller]")]
@@ -38,7 +38,7 @@ namespace ASP.NET_Core_API2.Controllers
                 IEnumerable<Post> posts = _dapper.LoadData<Post>(sql);
                 return Ok(posts);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -110,7 +110,7 @@ namespace ASP.NET_Core_API2.Controllers
                     [PostCreated],
                     [PostUpdated] 
                 FROM TutorialAppSchema.Posts
-                    WHERE UserId = " + this.User.FindFirst("userId")?.Value;
+                    WHERE UserId = " + User.FindFirst("userId")?.Value;
             try
             {
                 IEnumerable<Post> posts = _dapper.LoadData<Post>(sql);
@@ -163,7 +163,7 @@ namespace ASP.NET_Core_API2.Controllers
                 [PostTitle],
                 [PostContent],
                 [PostCreated],
-                [PostUpdated]) VALUES (" + this.User.FindFirst("userId")?.Value
+                [PostUpdated]) VALUES (" + User.FindFirst("userId")?.Value
                 + ",'" + postToAdd.PostTitle
                 + "','" + postToAdd.PostContent
                 + "', GETDATE(), GETDATE() )";
@@ -194,7 +194,7 @@ namespace ASP.NET_Core_API2.Controllers
                 "', PostTitle = '" + postToEdit.PostTitle +
                 @"', PostUpdated = GETDATE()
                     WHERE PostId = " + postToEdit.PostId.ToString() +
-                    "AND UserId = " + this.User.FindFirst("userId")?.Value;
+                    "AND UserId = " + User.FindFirst("userId")?.Value;
             try
             {
                 if (_dapper.ExecuteSql(sql))
@@ -218,7 +218,7 @@ namespace ASP.NET_Core_API2.Controllers
         {
             string sql = @"DELETE FROM TutorialAppSchema.Posts 
                 WHERE PostId = " + postId.ToString() +
-                    "AND UserId = " + this.User.FindFirst("userId")?.Value;
+                    "AND UserId = " + User.FindFirst("userId")?.Value;
             try
             {
                 if (_dapper.ExecuteSql(sql))
