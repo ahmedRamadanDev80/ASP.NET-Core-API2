@@ -17,6 +17,7 @@ namespace ASP.NET_Core_API2.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
+    [ApiVersion("1.0")]
     public class AuthController : ControllerBase
     {
         private readonly DataContextDapper _dapper;

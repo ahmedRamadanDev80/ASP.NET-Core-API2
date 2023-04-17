@@ -8,6 +8,7 @@ namespace ASP.NET_Core_API2.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiVersion("1.0")]
     public class UserJobInfoController : ControllerBase
     {
         private readonly DataContextDapper _dapper;

@@ -8,6 +8,7 @@ namespace ASP.NET_Core_API2.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiVersion("1.0")]
     public class UserController : ControllerBase
     {
         private readonly DataContextDapper _dapper;
