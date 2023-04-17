@@ -1,12 +1,14 @@
 ﻿using ASP.NET_Core_API2.Data;
 using ASP.NET_Core_API2.Models;
 using ASP.NET_Core_API2.Models.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ASP.NET_Core_API2.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     [ApiVersion("1.0")]
     public class UserJobInfoController : ControllerBase
