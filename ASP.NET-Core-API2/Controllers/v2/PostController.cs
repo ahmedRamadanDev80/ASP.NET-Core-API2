@@ -108,5 +108,31 @@ namespace ASP.NET_Core_API2.Controllers.v2
             }
             return BadRequest("Failed to upsert post!");
         }
+
+        // ---------- DELETE ----------
+        [HttpDelete("Delete/{postId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public IActionResult DeletePost(int postId)
+        {
+            string sql = @"EXEC TutorialAppSchema.spPost_Delete @PostId = " +
+                   postId.ToString() +
+                   ", @UserId = " + this.User.FindFirst("userId")?.Value;
+
+            try
+            {
+                if (_dapper.ExecuteSql(sql))
+                {
+                    return Ok();
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return BadRequest("Failed to Delete post!");
+        }
+
     }
 }
