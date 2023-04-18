@@ -83,6 +83,28 @@ namespace ASP.NET_Core_API2.Controllers.v2
             return BadRequest(" Request Failed ");
         }
 
+        // ---------- Delete ----------
+        [HttpDelete("DeleteUser/{userId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult DeleteUser(int userId)
+        {
+            string sql = @"TutorialAppSchema.spUser_Delete
+            @UserId = " + userId.ToString();
+
+            try
+            {
+                if (_dapper.ExecuteSql(sql))
+                {
+                    return Ok();
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return BadRequest(" Request Failed ");
+        }
 
     }
 }
