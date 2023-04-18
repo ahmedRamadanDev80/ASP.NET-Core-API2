@@ -12,12 +12,12 @@ using System.Data;
 using System.Security.Cryptography;
 
 
-namespace ASP.NET_Core_API2.Controllers.v1
+namespace ASP.NET_Core_API2.Controllers
 {
     [Authorize]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
-    [ApiVersion("1.0")]
+    [ApiVersionNeutral]
     public class AuthController : ControllerBase
     {
         private readonly DataContextDapper _dapper;
