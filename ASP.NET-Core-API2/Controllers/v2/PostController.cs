@@ -78,5 +78,35 @@ namespace ASP.NET_Core_API2.Controllers.v2
             }
         }
 
+        // ---------- UPSERT POSTS ----------
+        [HttpPut("UpsertPost")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public IActionResult UpsertPost(Post postToUpsert)
+        {
+            string sql = @"EXEC TutorialAppSchema.spPosts_Upsert
+                @UserId =" + this.User.FindFirst("userId")?.Value +
+                ", @PostTitle ='" + postToUpsert.PostTitle +
+                "', @PostContent ='" + postToUpsert.PostContent + "'";
+
+            if (postToUpsert.PostId > 0)
+            {
+                sql += ", @PostId = " + postToUpsert.PostId;
+            }
+
+            try
+            {
+                if (_dapper.ExecuteSql(sql))
+                {
+                    return Ok();
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return BadRequest("Failed to upsert post!");
+        }
     }
 }
