@@ -25,7 +25,7 @@ namespace ASP.NET_Core_API2.Controllers.v2
         [HttpGet("GetUsers/{userId}/{isActive}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<IEnumerable<UserV2>> GetUsers(int userId, bool isActive)
+        public ActionResult<IEnumerable<UserV2>> GetUsers(int userId = 0, bool isActive = true)
         {
             string sql = @"EXEC TutorialAppSchema.spUsers_Get";
             string stringParameters = "";
