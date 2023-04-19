@@ -2,6 +2,7 @@
 using ASP.NET_Core_API2.Helpers;
 using ASP.NET_Core_API2.Models;
 using ASP.NET_Core_API2.Models.Dtos;
+using Dapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -91,15 +92,16 @@ namespace ASP.NET_Core_API2.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public IActionResult Login(UserToLoginDto userToLogin)
         {
-            string sqlForHashAndSalt = @"SELECT 
-                [PasswordHash],
-                [PasswordSalt] FROM TutorialAppSchema.Auth WHERE Email = '" +
-                userToLogin.Email + "'";
+            string sqlForHashAndSalt = @"EXEC TutorialAppSchema.spLoginConfirmation_Get 
+                @Email = @EmailParam";
+
+            DynamicParameters sqlParameters = new DynamicParameters();
+            sqlParameters.Add("@EmailParam", userToLogin.Email, DbType.String);
             // getting the hased password and salt from Db
             try
             {
                 UserToConfirmLoginDto userToConfirmLogin = _dapper
-                    .LoadDataSingle<UserToConfirmLoginDto>(sqlForHashAndSalt);
+                    .LoadDataSingleWithParameters<UserToConfirmLoginDto>(sqlForHashAndSalt, sqlParameters);
 
                 // hashing the password the user entered with the salt from the Db 
                 byte[] passwordHash = _authHelper.GetPasswordHash(userToLogin.Password, userToConfirmLogin.PasswordSalt);
@@ -126,6 +128,27 @@ namespace ASP.NET_Core_API2.Controllers
                 return BadRequest("email is invalid!");
             }
         }
+
+        // ---------- ResetPassword ----------
+        [HttpPut("ResetPassword")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public IActionResult ResetPassword(UserToLoginDto userForSetPassword)
+        {
+            try
+            {
+                if (_authHelper.SetPassword(userForSetPassword))
+                {
+                    return Ok();
+                }
+            }catch(Exception ex) 
+            {
+                return BadRequest(ex.Message);
+            }
+            return BadRequest("Failed to update password!");
+        }
+
         // ---------- RefreshToken ----------
         [HttpGet("RefreshToken")]
         public string RefreshToken()
