@@ -2,6 +2,7 @@
 using ASP.NET_Core_API2.Helpers;
 using ASP.NET_Core_API2.Models;
 using ASP.NET_Core_API2.Models.Dtos;
+using AutoMapper;
 using Dapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -23,11 +24,19 @@ namespace ASP.NET_Core_API2.Controllers
     {
         private readonly DataContextDapper _dapper;
         private readonly AuthHelper _authHelper;
+        private readonly ReusableSql _reusableSql;
+        private readonly IMapper _mapper;
+
 
         public AuthController(IConfiguration config)
         {
             _dapper = new DataContextDapper(config);
             _authHelper = new AuthHelper(config);
+            _reusableSql = new ReusableSql(config);
+            _mapper = new Mapper(new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<UserToRegisterDto, UserV2>();
+            }));
         }
 
         // ---------- Register ----------
@@ -57,17 +66,10 @@ namespace ASP.NET_Core_API2.Controllers
                         //creating user in auth table
                         if (_authHelper.SetPassword(userForSetPassword))
                         {
-                            string sqlAddUser = @"EXEC TutorialAppSchema.spUser_Upsert
-                            @FirstName = '" + userToRegister.FirstName +
-                            "', @LastName = '" + userToRegister.LastName +
-                            "', @Email = '" + userToRegister.Email +
-                            "', @Gender = '" + userToRegister.Gender +
-                            "', @Active = 1" +
-                            ", @JobTitle = '" + userToRegister.JobTitle +
-                            "', @Department = '" + userToRegister.Department +
-                            "', @Salary = '" + userToRegister.Salary + "'";
+                            UserV2 userComplete = _mapper.Map<UserV2>(userToRegister);
+                            userComplete.Active = true;
                             //create user in other tables using a stored proc
-                            if (_dapper.ExecuteSql(sqlAddUser))
+                            if (_reusableSql.UpsertUser(userComplete))
                             {
                                 return Ok();
                             }
